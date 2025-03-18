@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Assistant | Kinetics Noise Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .kinetics-blue {
+            background-color: #004B87;
+        }
+        .kinetics-blue-text {
+            color: #004B87;
+        }
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        #answerText ul, #answerText ol {
+            margin: 1em 0;
+            padding-left: 2em;
+        }
+        #answerText li {
+            margin: 0.5em 0;
+            display: list-item;
+        }
+        #answerText ul li {
+            list-style-type: disc;
+        }
+        #answerText ol li {
+            list-style-type: decimal;
+        }
+        #answerText {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            padding: 1rem;
+        }
+        #answerText p {
+            margin-bottom: 1em;
+        }
+        #answerText br {
+            display: block;
+            margin: 0.5em 0;
+            content: "";
+        }
+        #answerText strong {
+            display: block;
+            margin-top: 1em;
+            color: #004B87;
+        }
+        .text-blue-600 {
+            color: #004B87;
+        }
+        .hover\:underline {
+            text-decoration: underline;
+        }
+        #answerText a {
+            display: inline;
+            color: #004B87;
+            text-decoration: none;
+        }
+        #answerText a:hover {
+            text-decoration: underline;
+        }
+        /* Handle list items */
+        #answerText .list-item {
+            display: block;
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Header Navigation -->
+    <nav class="kinetics-blue text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-2xl font-bold">
+                    Kinetics Noise Control
+                </div>
+                <div class="space-x-6">
+                    <a href="/" class="hover:underline">Search</a>
+                    <a href="/chat" class="hover:underline">Chat</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Page Title -->
+            <div class="kinetics-blue text-white px-6 py-4">
+                <h1 class="text-2xl font-bold">Technical Assistant</h1>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="p-6 space-y-8">
+                <!-- Upload Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl kinetics-blue-text font-semibold mb-4">Document Upload</h2>
+                    <div class="space-y-4">
+                        <!-- Database Selection -->
+                        <div class="flex items-center gap-2">
+                            <label for="uploadDatabase">Upload to:</label>
+                            <select id="uploadDatabase" class="rounded border-gray-300">
+                                <option value="qdrant">Qdrant</option>
+                                <option value="both">Both Azure & Qdrant</option>
+                                <option value="azure">Azure</option>
+                            </select>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="flex flex-col space-y-2">
+                            <input type="file" 
+                                   id="fileUpload" 
+                                   multiple 
+                                   webkitdirectory 
+                                   directory
+                                   class="border rounded p-2"
+                                   accept=".pdf,.txt,.docx,.doc,.md"
+                                   onchange="handleFileSelection(event)">
+                            <div id="selectedFiles" class="mt-2 space-y-2">
+                                <!-- Selected files will be listed here -->
+                            </div>
+                            <button onclick="uploadFiles()" 
+                                    class="kinetics-blue text-white px-6 py-2 rounded hover:opacity-90">
+                                Upload Files
+                            </button>
+                        </div>
+
+                        <!-- Upload Status -->
+                        <div id="uploadStatus" class="mt-4">
+                            <div id="fileStatuses" class="space-y-2">
+                                <!-- Individual file statuses will appear here -->
+                            </div>
+                            <div class="mt-4">
+                                <p id="overallProgress" class="text-sm font-medium text-gray-700"></p>
+                                <div class="w-full bg-gray-200 rounded h-2 mt-2">
+                                    <div id="overallProgressBar" class="kinetics-blue h-2 rounded" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Section -->
+                <div>
+                    <h2 class="text-xl kinetics-blue-text font-semibold mb-4">Technical Inquiry</h2>
+                    <div class="space-y-4">
+                        <textarea id="question" 
+                                placeholder="Enter your technical question here..." 
+                                class="w-full p-4 border rounded-lg h-32 focus:outline-none focus:border-blue-500"></textarea>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="includeSources" checked class="rounded">
+                                <label for="includeSources">Include reference documentation</label>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="aiModel">AI Model:</label>
+                                <select id="aiModel" class="rounded border-gray-300">
+                                    <option value="claude">Claude</option>
+                                    <option value="openai">OpenAI</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label for="database">Database:</label>
+                                <select id="database" class="rounded border-gray-300">
+                                    <option value="qdrant">Qdrant</option>
+                                    <option value="azure">Azure Search</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="askQuestion()" 
+                                class="kinetics-blue text-white px-6 py-2 rounded hover:opacity-90">
+                            Submit Question
+                        </button>
+                    </div>
+
+                    <!-- Answer Section -->
+                    <div id="answer" class="mt-8 hidden">
+                        <h3 class="font-semibold mb-2 kinetics-blue-text">Response:</h3>
+                        <div id="answerText" class="p-4 bg-gray-50 rounded-lg"></div>
+                        <button onclick="copyToClipboard()" 
+                                class="mt-2 kinetics-blue text-white px-4 py-2 rounded hover:opacity-90">
+                            Copy Text
+                        </button>
+                        
+                        <!-- Sources Section -->
+                        <div id="sources" class="mt-4">
+                            <h3 class="font-semibold mb-2 kinetics-blue-text">References:</h3>
+                            <ul id="sourcesList" class="space-y-4">
+                                <!-- Sources will be inserted here -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="kinetics-blue text-white mt-8">
+        <div class="container mx-auto px-4 py-6">
+            <div class="text-center">
+                <p>© 2025 Kinetics Noise Control, Inc., All Rights Reserved</p>
+                <p class="text-sm mt-2">6300 Irelan Place, Dublin, Ohio 43017</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Keep existing JavaScript -->
+    <script>
+    let selectedFiles = [];
+
+    function handleFileSelection(event) {
+        selectedFiles = Array.from(event.target.files);
+        updateSelectedFilesList();
+    }
+
+    function updateSelectedFilesList() {
+        const selectedFilesDiv = document.getElementById('selectedFiles');
+        selectedFilesDiv.innerHTML = selectedFiles.map((file, index) => `
+            <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span class="text-sm">${file.name}</span>
+                <span id="fileStatus_${index}" class="text-sm text-gray-500">Pending</span>
+            </div>
+        `).join('');
+    }
+
+    async function uploadFiles() {
+        const database = document.getElementById('uploadDatabase').value;
+        const overallProgress = document.getElementById('overallProgress');
+        const overallProgressBar = document.getElementById('overallProgressBar');
+        
+        if (selectedFiles.length === 0) {
+            alert('Please select files to upload');
+            return;
+        }
+        
+        let completed = 0;
+        
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
+            const statusElement = document.getElementById(`fileStatus_${i}`);
+            
+            const formData = new FormData();
+            formData.append('files', file);
+            formData.append('database', database);
+            
+            try {
+                statusElement.textContent = 'Uploading...';
+                statusElement.className = 'text-sm text-blue-500';
+                
+                console.log('Attempting to upload file:', file.name);
+                const response = await fetch('http://localhost:8080/upload', {
+                    method: 'POST',
+                    mode: 'cors',
+                    credentials: 'omit',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Origin': 'file://'
+                    },
+                    body: formData
+                });
+                
+                console.log('Upload response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Upload error:', errorText);
+                    throw new Error(errorText || `HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Upload result:', result);
+                
+                if (result.status === 'error') {
+                    throw new Error(result.message || 'Upload failed');
+                }
+                
+                statusElement.textContent = 'Completed';
+                statusElement.className = 'text-sm text-green-500';
+                
+            } catch (error) {
+                console.error(`Error uploading ${file.name}:`, error);
+                statusElement.textContent = `Failed: ${error.message}`;
+                statusElement.className = 'text-sm text-red-500';
+            }
+            
+            completed++;
+            const progress = Math.round((completed / selectedFiles.length) * 100);
+            overallProgress.textContent = `Overall Progress: ${progress}%`;
+            overallProgressBar.style.width = `${progress}%`;
+        }
+        
+        // Clear file input after all uploads are complete
+        document.getElementById('fileUpload').value = '';
+        selectedFiles = [];
+    }
+
+    async function askQuestion() {
+        const question = document.getElementById('question').value.trim();
+        const includeSources = document.getElementById('includeSources').checked;
+        const aiModel = document.getElementById('aiModel').value;
+        const database = document.getElementById('database').value;
+        const answer = document.getElementById('answer');
+        const answerText = document.getElementById('answerText');
+        const sourcesList = document.getElementById('sourcesList');
+
+        if (!question) {
+            alert('Please enter a question');
+            return;
+        }
+
+        answer.classList.remove('hidden');
+        answerText.innerHTML = 'Processing...';
+
+        try {
+            // First get search results
+            const searchResponse = await fetch('http://localhost:7860/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: question,
+                    top: 5,
+                    ai_model: aiModel,
+                    database: database
+                })
+            });
+
+            if (!searchResponse.ok) throw new Error('Search failed');
+            const searchResults = await searchResponse.json();
+
+            // Then ask the question with the search results
+            const response = await fetch('http://localhost:7860/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: question,
+                    search_results: searchResults.results,
+                    include_sources: includeSources,
+                    ai_model: aiModel,
+                    database: database
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to get answer');
+            const result = await response.json();
+            
+            if (result.answer) {
+                const formattedAnswer = formatAnswer(result.answer);
+                answerText.innerHTML = formattedAnswer;
+                
+                if (result.sources && result.sources.length > 0) {
+                    displaySources(result.sources);
+                    document.getElementById('sources').classList.remove('hidden');
+                } else {
+                    document.getElementById('sources').classList.add('hidden');
+                }
+            } else {
+                throw new Error('No answer received');
+            }
+        } catch (error) {
+            answerText.innerHTML = `Error: ${error.message}`;
+            console.error('Ask error:', error);
+        }
+    }
+
+    function formatAnswer(text) {
+        return text
+            // Convert URLs to clickable links (must be done first)
+            .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" class="text-blue-600 hover:underline">$1</a>')
+            // Convert www.kineticsnoise.com to clickable link
+            .replace(/(www\.kineticsnoise\.com)/g, '<a href="https://$1" target="_blank" class="text-blue-600 hover:underline">$1</a>')
+            // Handle numbered lists (1. 2. etc)
+            .replace(/^(\d+\.)\s+/gm, '<br>$1 ')
+            // Handle bullet points (only at start of lines)
+            .replace(/^[•-]\s+/gm, '• ')
+            // Convert double line breaks to paragraphs
+            .replace(/\n\n/g, '<br><br>')
+            // Handle section headers
+            .replace(/(^|\n)([A-Z][^:]+:)/g, '$1<br><strong>$2</strong>')
+            // Add spacing after colons (but not if it's part of a URL)
+            .replace(/(?<!https?):(?!\/{2})\s*/g, ': ')
+            // Clean up any remaining single line breaks that aren't needed
+            .replace(/\n(?![•\d])/g, ' ')
+            // Clean up multiple spaces
+            .replace(/\s+/g, ' ');
+    }
+
+    function displaySources(sources) {
+        const sourcesList = document.getElementById('sourcesList');
+        if (!sourcesList) {
+            console.error('Element with ID "sourcesList" not found');
+            return;
+        }
+        
+        sourcesList.innerHTML = sources.map(source => {
+            console.log('Processing source:', source);
+            
+            if (!source) {
+                console.error('Invalid source object');
+                return '';
+            }
+
+            const fileName = source.file_name || source.storage_path?.split('/').pop() || 'Unknown';
+            const filePath = source.metadata_storage_name || source.storage_path || 'Unknown';
+            
+            return `
+                <li class="p-3 bg-gray-50 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-medium">${fileName}</p>
+                            <p class="text-sm text-gray-600">${source.context || source.summary || 'No context available'}</p>
+                            
+                        </div>
+                        
+                    </div>
+                </li>
+            `;
+        }).join('');
+    }
+    // async function copyFilePath(fileName) {
+    //     try {
+    //         await navigator.clipboard.writeText(fileName);
+    //         // Show temporary success message
+    //         const button = document.getElementById('copyFilePath');
+    //         const originalText = document.getElementById('copyFilePath').textContent;
+    //         button.textContent = 'Copied!';
+    //         button.classList.add('bg-green-500');
+            
+    //         setTimeout(() => {
+    //             button.textContent = originalText;
+    //             button.classList.remove('bg-green-500');
+    //             button.classList.add('bg-blue-500');
+    //         }, 2000);
+    //     } catch (err) {
+    //         console.error('Failed to copy path:', err);
+    //         alert('Failed to copy path to clipboard');
+    //     }
+    // }
+
+    function copyToClipboard() {
+        const answerText = document.getElementById('answerText').innerText;
+        navigator.clipboard.writeText(answerText).then(() => {
+            alert('Text copied to clipboard');
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
+    }
+
+    async function sendQuery() {
+        const query = document.getElementById('queryInput').value;
+        const database = document.getElementById('databaseSelect').value;
+        
+        if (!query) return;
+        
+        try {
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: query,
+                    database: database,
+                    ai_model: 'claude'
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            displayResults(data.results, database);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error searching documents: ' + error.message);
+        }
+    }
+
+    function displayResults(results, database) {
+        const chatContainer = document.getElementById('chat-container');
+        
+        // Add user query
+        const userDiv = document.createElement('div');
+        userDiv.className = 'mb-4';
+        userDiv.innerHTML = `
+            <p class="font-bold">You:</p>
+            <p>${document.getElementById('queryInput').value}</p>
+        `;
+        chatContainer.appendChild(userDiv);
+        
+        // Add response
+        const responseDiv = document.createElement('div');
+        responseDiv.className = 'mb-4';
+        responseDiv.innerHTML = `
+            <p class="font-bold">Response (${database}):</p>
+            <div class="response-content">
+                ${results.map(result => `
+                    <div class="mb-2 p-2 bg-gray-50 rounded">
+                        <p class="font-semibold">${result.metadata_storage_name}</p>
+                        <p>${result.content}</p>
+                        <p class="text-sm text-gray-500">Relevance: ${result.relevance_score.toFixed(2)}</p>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        chatContainer.appendChild(responseDiv);
+        
+        // Clear input
+        document.getElementById('queryInput').value = '';
+        
+        // Scroll to bottom
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+    </script>
+</body>
+</html>
