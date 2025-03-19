@@ -1,0 +1,39 @@
+# Environment variables
+.env
+
+# Python byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Cache directories
+.cache/
+cache/
+
+# Database files
+*.db
+*.sqlite
+
+# OS specific files
+.DS_Store
+Thumbs.db
